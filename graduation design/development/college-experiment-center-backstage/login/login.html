@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+	<title>login</title>
+  <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/jquery-cookie/1.4.0/jquery.cookie.js"></script>
+<style type="text/css">
+  html {
+    width: 100%;
+    height: 100%;
+  }
+  body {
+  	width: 100%;
+  	height: 100%;
+  	margin: 0;
+  	padding: 0;
+    background-image: url('./assets/images/mbg.jpg');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: 0 0;
+  }
+	input {
+		padding-left: 10px;
+	}
+  .login {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+	.login-title {
+		position: absolute;
+		top: 22%;
+		left: 50%;
+		width: 340px;
+    height: 40px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: SimSun;
+    text-align: center;
+    box-sizing: border-box;
+		transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%) ;
+	}
+  .login-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 30px 45px 40px 45px;
+    width: 340px;
+    height: 320px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%) ;
+  }
+  .login-box::before {
+  	position: absolute;
+  	top: 0;
+    left: 0;
+    z-index: -1;
+    width: 340px;
+    height: 340px;
+    content: "";
+    background-color: #fff;
+    box-sizing: border-box;
+    border-radius: 4px;
+    opacity: 0.9;
+  }
+
+
+  .login-box-title {
+    margin-bottom: 20px;
+  }
+
+  .login-box-title p {
+  	font-size: 18px;
+    font-weight: bold;
+    line-height: 25px;
+    color: #3DA5FE;
+  }
+
+  .login-box-error {
+  	display: none;
+  	color: red;
+  	font-size: 14px;
+  	text-align: center;
+  }
+
+  .login-box-form {
+    position: relative;
+  }
+
+  ::-webkit-input-placeholder {
+    color: #B0B0B0;
+    padding-left: 6.4px;
+  }
+
+  :-moz-placeholder {/* Firefox 18- */
+    color: #B0B0B0;
+    padding-left: 6.4px;
+  }
+
+  ::-moz-placeholder{/* Firefox 19+ */
+    color: #B0B0B0;
+    padding-left: 6.4px;
+  }
+
+  :-ms-input-placeholder {
+    color: #B0B0B0;
+    padding-left: 6.4px;
+  }
+
+  .form-account {
+    margin-bottom: 15px;
+    width: 214px;
+    height: 34px;
+    border: .5px solid #D1D1D1;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    box-sizing: border-box;
+    outline:none;
+  }
+
+  .account-icon {
+    width: 32px;
+    height: 32px;
+    border: .5px solid #D1D1D1;
+    border-right-width: 0;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background-color: #FAFAFA;
+    background-image: url('./assets/images/user.png');
+    background-size: 17.7px 17.7px;
+    background-position: 6.9px 7px;
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+  }
+
+  .form-password {
+    width: 214px;
+    height: 32px;
+    border: .5px solid #D1D1D1;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    box-sizing: border-box;
+    outline:none;
+  }
+  .form-captcha{
+    margin-top: 15px;
+    width: 120px;
+    height: 32px;
+    border: .5px solid #D1D1D1;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    box-sizing: border-box;
+    outline:none;
+  }
+  .password-icon {
+    width: 32px;
+    height: 32px;
+    border: .5px solid #D1D1D1;
+    border-right-width: 0;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background-color: #FAFAFA;
+    background-image: url('./assets/images/pwd.png');
+    background-size: 17.7px 17.7px;
+    background-position: 6.9px 7px;
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+  }
+
+  .form-forgotPassword {
+    position: absolute;
+    right: -6px;
+    top: 95px;
+    font-size: 12px;
+    line-height: 12px;
+    color: #1D2E4D;
+  }
+
+  .form-forgotPassword, .form-submit:hover {
+    cursor: pointer;
+    background: #1E90FF;
+  }
+
+  .form-submit {
+    margin-top: 26px;
+    width: 250px;
+    font-size: 14px;
+    line-height: 36px;
+    border: 0;
+    border-radius: 2px;
+    background-color: #4F9AF5;
+    color: #fff;
+    outline:none;
+  }
+  #captcha_img{
+    height: 32px;
+    width: 110px;
+    margin-top: 15px;
+    margin-left: 15px;
+  }
+  .fl { /*左浮动*/
+    float: left;
+  }
+  .fr { /*右浮动*/
+    float: right;
+  }
+  .clear { /*清除浮动*/
+    clear: both;
+  }
+</style>
+</head>
+<body>
+   <div class="login">
+   	<div class="login-title">
+   		<img src="assets/images/icon.png" width="20" height="20"/>
+   		实验中心管理系统
+   	</div>
+    <!--登录框-->
+    <div class="login-box">
+      <div class="login-box-title">
+      	<div class="login-box-error"></div>
+      	<p>欢迎登录</p>
+      </div>
+      <form class="login-box-form" method="post" action="#" onsubmit="return false">
+        <div clas="box-form-account">
+          <div class="account-icon fl"></div>
+          <input type="text" name="username" class="form-account fl" placeholder="用户名" value="">
+        </div>
+        <div class="box-form-password">
+          <div class="password-icon fl"></div>
+          <input type="password" name="password" class="form-password fl" placeholder="密码">
+        </div>
+        <div class="box-form-captcha">
+          <input type="text" name="captcha" class="form-captcha fl" placeholder="验证码">
+          <img id="captcha_img" src="" title="点击刷新" onclick="getIdentifyCode()" style="cursor: pointer;"/>
+        </div>
+        <input class="form-submit" type="button" value="登录" onclick="login()">
+      </form>
+    </div>
+  </div>
+  <script type="text/javascript">
+
+  	//表单提交前验证
+    function validated (obj) {
+
+    	var state = true
+    	var pattern = /^\w{4,16}$/
+    	var name = obj.username.trim()
+    	var pwd = obj.password.trim()
+    	var captcha = obj.captcha.trim()
+
+    	if (captcha == "" || captcha == null) {
+    		$('.login-box-error').css("display", "block")
+    		$('.login-box-error').text('验证码不能为空')
+    		state = false
+
+    	} else if (name == "" || pwd == "" || name == null || pwd == null) {
+    		$('.login-box-error').css("display", "block")
+    		$('.login-box-error').text('账号或者密码不能为空')
+    		state = false
+    	} else {
+    		if (!pattern.test(name) || !pattern.test(pwd)) {
+    			$('.login-box-error').css("display", "block")
+    			$('.login-box-error').text('账号或者密码格式错误')
+    			state = false
+    		}
+    	}
+    	return state;
+    }
+
+  	// 表单提交
+  	function login () {
+
+  		var param = {
+	  		username: $("input[name='username']")[0].value,
+	      password: $("input[name='password']")[0].value,
+	      captcha: $("input[name='captcha']")[0].value,
+	  	};
+
+	  	//表单提交前验证
+	  	if (validated(param) == false) {
+	  		return false
+	  	}
+
+  		var ajax_option={
+	      type: 'POST',
+	      url: 'http://127.0.0.1:8070/experiment_center/user/login',
+	      contentType: 'application/json',
+	      dataType: 'json',
+	      data: JSON.stringify(param),
+	      success: redirectPage
+	   };
+
+  		// 异步提交表单
+			$.ajax(ajax_option);
+  	}
+
+  	// 表单提交成功后重定向
+    function redirectPage (data) {
+
+    	if (data.code == 2) {
+    		$('.login-box-error').css("display", "block")
+    		$('.login-box-error').text(data.msg)
+    		return false
+    	} else if (data.code == 1 && data.msg == "成功") {
+
+    		if (data.data.currentUser != null) {
+
+	    		// 设置cookie
+	    		$.cookie('CURRENTUSER', data.data.currentUser.username, { path: '/', expires: 1 })
+	    		$.cookie('USERTYPE', data.data.currentUser.type, { path: '/', expires: 1 })
+	    		// 页面跳转
+	    		window.location.href = "http://127.0.0.1:8080/#/home"
+    		}
+    	}
+    }
+
+    // 一开始就调用
+  	getIdentifyCode();
+
+  	// 获取验证码
+  	function getIdentifyCode() {
+  		var codeUrl = 'http://127.0.0.1:8070/experiment_center/user/getIdentifyCode'
+
+  		$.ajax({
+  			type:'GET',
+  			url: codeUrl,
+  			data: {},
+  			success: function (data) {
+  				// 加上时间防止缓存
+  				var url = codeUrl + "?" + new Date()
+  				$('#captcha_img').attr("src", url)
+  			}
+  		})
+  	}
+
+  </script>
+</body>
+</html>

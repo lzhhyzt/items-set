@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.frame.dao.SettingDao" >
+
+    <resultMap id="ThemeMap" type="com.frame.bean.Theme">    
+        <result column="id" property="id" jdbcType="INTEGER" />    
+        <result column="current_color" property="currentColor" jdbcType="VARCHAR" />    
+        <result column="previous_color" property="previousColor" jdbcType="VARCHAR" />       
+    </resultMap>
+    
+    <!-- 查询主题色 -->
+    <select id="queryTheme" resultMap="ThemeMap" parameterType="java.lang.Integer">    
+        select * from theme where 
+        <if test="_parameter != null">
+        id=#{id}
+        </if>
+    </select>
+    
+    <!-- 更新主题色 -->
+    <update id="updateTheme" parameterType="com.frame.bean.Theme">
+    	update theme set current_color=#{currentColor}, previous_color=#{previousColor} where id = #{id,jdbcType=INTEGER} 
+    </update>
+    
+</mapper>    

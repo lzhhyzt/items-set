@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+						http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+						http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- 自动扫描指定目录，将控制器加载到bean -->
+	<context:component-scan base-package="com.frame.dao" />
+	<context:component-scan base-package="com.frame.util" />
+	<context:component-scan base-package="com.frame.service" />
+
+	<!-- 引入jdbc配置文件 -->    
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">    
+        <!-- <property name="location" value="classpath:jdbc.properties" /> -->
+        <property name="locations">  
+            <list>  
+                <value>classpath:jdbc.properties</value>  
+                <value>classpath:identifyCode.properties</value>  
+            </list>  
+        </property>
+    </bean>
+    <!-- 配置 druid 数据源 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password、driverClass -->
+		<property name="username" value="${username}" />
+		<property name="password" value="${password}" />
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url}" />
+		<!-- 配置初始化大小、最小、最大 --> 
+	    <property name="initialSize" value="${initialSize}" />
+	    <property name="maxIdle" value="${maxIdle}" />
+	    <property name="minIdle" value="${minIdle}" /> 
+	    <property name="maxActive" value="${maxActive}" />
+	    <!-- 配置获取连接等待超时的时间 --> 
+	    <property name="maxWait" value="${maxWait}" />
+	</bean>
+	
+	<!-- 配置 sessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描Mapper.xml文件 -->
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/frame/**/*Mapper.xml</value>
+				<value>classpath:mybatis/**/*Mapper.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 配置 sqlSessionTemplate 持久化模板 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	
+	<!-- 映射DAO接口所在的包名，Spring会查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.frame.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+
+	<!-- 配置事物管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 配置事物传播行为 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="find*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="select*" read-only="true" />
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 配置事物切入点 -->
+	<aop:config>
+		<aop:pointcut id="pointCut" expression="execution(* com.frame.service.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut" />
+	</aop:config>
+
+	<!-- 开始声明式事务（事物注解） -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+</beans>

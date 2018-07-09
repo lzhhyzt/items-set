@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.frame.dao.FrontUserDao" >
+
+    <resultMap id="BaseResultMap" type="com.frame.bean.FUser">    
+        <result column="id" property="id" jdbcType="INTEGER" />    
+        <result column="username" property="username" jdbcType="VARCHAR" />    
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="realname" property="realname" jdbcType="VARCHAR" />       
+    </resultMap>
+    
+    <resultMap id="detailResultMap" type="com.frame.bean.FUserDetail">    
+        <result column="id" property="id" jdbcType="INTEGER" />    
+        <result column="userId" property="userId" jdbcType="INTEGER" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="realname" property="realname" jdbcType="VARCHAR" />
+        <result column="nickname" property="nickname" jdbcType="VARCHAR" />   
+        <result column="sex" property="sex" jdbcType="VARCHAR" />
+        <result column="age" property="age" jdbcType="INTEGER" />    
+        <result column="phone" property="phone" jdbcType="VARCHAR" />    
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="autograph" property="autograph" jdbcType="VARCHAR" />           
+    </resultMap>
+    
+    <!-- 可重用查询字段 -->
+    <sql id="base_bean_list">
+    	id,username,type,realname
+    </sql>
+    
+    <!-- 用户登录-->    
+    <select id="login" resultMap="BaseResultMap" parameterType="com.frame.bean.FUser">    
+        select
+        <include refid="base_bean_list" />
+        from user where username=#{username} and password=#{password}
+    </select>
+    
+    <!-- 根据账户查询 -->
+    <select id="getFUserInfoByName" resultMap="BaseResultMap" parameterType="java.lang.String">
+    	select 
+    	<include refid="base_bean_list" />
+    	from user where username=#{username}
+    </select>
+    
+    <!-- 查询所有用户 -->
+    <select id="queryAllFUsers" resultMap="BaseResultMap">    
+        select
+        <include refid="base_bean_list" /> 
+		 from user
+    </select>
+    
+    <!-- 查询所有用户数 -->
+    <select id="queryFUserSum" resultType="java.lang.Integer">    
+        select count(*) from user
+    </select>
+    
+     <!-- 查询用户的详细信息-->
+    <select id="queryFUserDetailByName" resultMap="detailResultMap" parameterType="java.lang.String">
+    	SELECT d.id,d.userId,u.username,u.realname,d.nickname,d.sex,d.age,d.phone,d.email,d.address,d.autograph
+		FROM user AS u, userdetail AS d WHERE u.id = d.userId AND u.username = #{username};
+    </select>
+    
+    <!-- 添加新用户 -->
+    <insert id="insertFUser" parameterType="com.frame.bean.FUser">
+	  insert into user (username,password,type)
+	  values (#{username},#{password},#{type})
+	</insert>
+	
+	<!-- 添加新用户的详细信息-->
+    <insert id="insertFUserDetail" parameterType="com.frame.bean.FUserDetail">
+	  insert into userdetail(userId,sex,age,phone,email,address,autograph)
+	  values (#{userId},#{sex},#{age},#{phone},#{email},#{address},#{autograph})
+	</insert>
+    
+    <!-- 删除用户 -->
+    <delete id="deleteFUserByName" parameterType="java.lang.String">
+    	delete from user where username = #{username}
+    </delete>
+    
+    <!-- 删除用户详细信息 -->
+    <delete id="deleteFUserDetailById" parameterType="java.lang.Integer">
+    	delete from userdetail where userId = #{userId}
+    </delete>
+    
+    <!-- 更新用户的真实姓名 -->
+    <update id="updateFUserRealname" parameterType="com.frame.bean.FUser">
+    	update user set realname = #{realname} where username = #{username}
+    </update>
+    
+    <!-- 更新用户的详细信息 -->
+    <update id="updateFUserDetailById" parameterType="com.frame.bean.FUserDetail">
+    	update userdetail set nickname=#{nickname}, sex=#{sex},age=#{age},phone=#{phone},email=#{email},address=#{address},autograph=#{autograph}      
+        where userId = #{userId}
+    </update>
+      
+</mapper>    

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">    
+<mapper namespace="com.frame.dao.AnnouncementDao" >
+
+    <resultMap id="BaseResultMap" type="com.frame.bean.Announcement">    
+        <result column="id" property="id" jdbcType="INTEGER" />    
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="author" property="author" jdbcType="VARCHAR" />   
+        <result column="date" property="date" jdbcType="DATE" />   
+        <result column="contents" property="contents" jdbcType="CLOB" />    
+        <result column="state" property="state" jdbcType="INTEGER" />   
+        <result column="visits" property="visits" jdbcType="INTEGER" />            
+    </resultMap>
+    
+    <!-- 公告查询 (根据ID)-->    
+    <select id="queryAnnouncementInfoById" resultMap="BaseResultMap" parameterType="java.lang.Integer">    
+        select * from announcement where 
+        <if test="_parameter != null">
+        id=#{id}
+        </if>
+    </select>
+    
+    <!-- 公告查询 (根据标题，模糊查询)-->    
+    <select id="queryAnnouncementInfoByTitle"  resultMap="BaseResultMap" parameterType="java.lang.String">    
+        select * from announcement  
+        <if test="_parameter != null">
+        where title like "%"#{_parameter}"%"
+        </if>
+    </select>
+    
+    <!-- 公告查询(根据作者，模糊查询) -->
+    <select id="queryAnnouncementInfoByAuthor"  resultMap="BaseResultMap" parameterType="java.lang.String">    
+        select * from announcement  
+        <if test="_parameter != null">
+        where author like "%"#{_parameter}"%"
+        </if>
+    </select>
+    
+	<!-- 公告查询(所有用户) -->
+    <select id="queryAllAnnouncementInfo" resultMap="BaseResultMap">
+    	select * from announcement
+    </select>
+    
+    <!-- 查询总公告数  -->
+    <select id="queryAnnouncementNumber" resultType="java.lang.Integer">
+    	select count(*) from announcement
+    </select>
+    
+    <!-- 查询指定时间范围内的公告数  -->
+    <select id="queryAnnouncementNumberInTime" parameterType="com.frame.bean.Time" resultType="java.lang.Integer">
+    	SELECT COUNT(*) FROM announcement WHERE DATE BETWEEN #{aBeginTime} AND #{aEndTime}
+    </select>
+    
+    <!-- 分页查询公告  -->
+    <select id="queryAnnouncementByPaging" resultMap="BaseResultMap" parameterType="com.frame.bean.Pagination">
+    	select * from announcement
+    	<if test="start != null and pageSize != null">  
+        limit #{start},#{pageSize}  
+    	</if>
+    </select>
+    
+    <!-- 查询指定id的上一条 公告-->
+    <select id="queryPreviousAnnouncementById" resultMap="BaseResultMap" parameterType="java.lang.Integer"> 
+        select * from announcement where id &lt; #{id} 
+        order by id desc limit 1
+    </select>
+
+    <!-- 查询指定id的下一条公告 -->
+    <select id="queryNextAnnouncementById" resultMap="BaseResultMap" parameterType="java.lang.Integer">    
+        select * from announcement where id &gt; #{id}
+        order by id asc limit 1
+    </select>
+    
+    <!-- 新增公告 -->
+    <insert id="insertAnnouncement" parameterType="com.frame.bean.Announcement">
+	  insert into announcement(title,author,date,contents,state,visits) 
+	  values(#{title,jdbcType=VARCHAR},#{author,jdbcType=VARCHAR},
+	  #{date},#{contents,jdbcType=CLOB},#{state},#{visits})
+	</insert>
+
+    <!-- 删除公告 (根据ID)-->
+    <delete id="deleteAnnouncementById" parameterType="java.lang.Integer">
+    	delete from announcement where id=#{id}  
+    </delete>
+    
+    <!-- 删除多条公告 (根据ID数组)-->
+    <delete id="deleteAnnouncementByArray" parameterType="List">
+    	delete from announcement where id in 
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">  
+        	#{item}  
+    	</foreach> 
+    </delete>
+    
+    <!-- 更新公告信息(根据ID) -->
+    <update id="updateAnnouncementById" parameterType="com.frame.bean.Announcement">
+    	update announcement      
+        <set >      
+          <if test="title != null" >      
+            title = #{title,jdbcType=VARCHAR},      
+          </if>
+          <if test="author != null" >      
+            author = #{author,jdbcType=VARCHAR},      
+          </if>
+          <if test="date != null" >      
+            date = #{date,jdbcType=DATE},      
+          </if>
+          <if test="contents != null" >      
+            contents = #{contents,jdbcType=CLOB},      
+          </if>
+          <if test="state != null" >      
+            state = #{state,jdbcType=INTEGER},      
+          </if>    
+            visits = #{visits,jdbcType=INTEGER},         
+        </set>      
+        where id = #{id,jdbcType=INTEGER} 
+    </update>
+    
+    <!-- 更新公告的访问次数  -->
+    <update id="updateAnnouncementVisits" parameterType="java.lang.Integer">
+    	update announcement set visits = visits + 1 where id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper>    

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.dao.FileDao" >
+    <resultMap id="BaseResultMap" type="com.frame.bean.File">    
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="filename" property="filename" jdbcType="VARCHAR" />    
+        <result column="url" property="url" jdbcType="VARCHAR" />    
+        <result column="size" property="size" jdbcType="INTEGER" /> 
+        <result column="type" property="type" jdbcType="VARCHAR" />
+        <result column="download" property="download" jdbcType="INTEGER" />          
+    </resultMap>
+    
+    <!-- 文件查询 (所有文件)--> 
+    <select id="queryFiles" resultMap="BaseResultMap">
+    	select * from file
+    </select>
+    
+    <!-- 文件查询 (根据id)--> 
+    <select id="queryFileById" resultMap="BaseResultMap">
+    	select * from file where id=#{id}
+    </select>
+    
+    <!-- 文件查询 (根据文件名)-->    
+    <select id="queryResourceInfoByName"  resultMap="BaseResultMap" parameterType="java.lang.String">    
+        select * from file  
+        <if test="_parameter != null">
+        where filename like "%"#{_parameter}"%" 
+        </if>
+    </select>
+    
+    <!-- 查询总文件数  -->
+    <select id="queryResourceNumber" resultType="java.lang.Integer">
+    	select count(*) from file
+    </select>
+    
+    <!-- 分页查询文件  -->
+    <select id="queryResourceByPaging" resultMap="BaseResultMap" parameterType="com.frame.bean.Pagination">
+    	select * from file
+    	<if test="start != null and pageSize != null">  
+        limit #{start},#{pageSize}  
+    	</if>
+    </select>
+
+    <!-- 查询指定id的上一条文件 -->
+    <select id="queryPreviousResourceById" resultMap="BaseResultMap" parameterType="java.lang.Integer"> 
+        select * from file where id &lt; #{id} 
+        order by id desc limit 1
+    </select>
+
+    <!-- 查询指定id的下一条文件 -->
+    <select id="queryNextResourceById" resultMap="BaseResultMap" parameterType="java.lang.Integer">    
+        select * from file where id &gt; #{id}
+        order by id asc limit 1
+    </select>
+    
+    <!-- 删除文件 (根据ID)-->
+    <delete id="deleteResourceById" parameterType="java.lang.Integer">
+    	delete from file where id=#{id}  
+    </delete>
+    
+    <!-- 删除多条文件 (根据ID数组)-->
+    <delete id="deleteResourceByArray" parameterType="List">
+    	delete from file where id in 
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">  
+        	#{item}  
+    	</foreach> 
+    </delete>
+    
+    <insert id="insertFile" parameterType="com.frame.bean.File">
+	  insert into file(filename,url,size,type,download) 
+	  values(#{filename,jdbcType=VARCHAR},#{url,jdbcType=VARCHAR},#{size,jdbcType=INTEGER},#{type,jdbcType=VARCHAR},#{download,jdbcType=INTEGER})
+	</insert>
+	
+	<!-- 更新文件的下载次数  -->
+    <update id="updateFileDownload" parameterType="java.lang.Integer">
+    	update file set download = download + 1 where id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper> 

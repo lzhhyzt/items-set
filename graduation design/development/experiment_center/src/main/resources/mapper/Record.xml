@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.frame.dao.RecordDao" >
+    <resultMap id="BaseResultMap" type="com.frame.bean.Record">    
+        <result column="id" property="id" jdbcType="INTEGER" />    
+        <result column="url" property="url" jdbcType="VARCHAR" />    
+        <result column="refer" property="refer" jdbcType="VARCHAR" /> 
+        <result column="time" property="time" jdbcType="INTEGER" />   
+        <result column="timeIn" property="timeIn" jdbcType="TIMESTAMP" />   
+        <result column="timeOut" property="timeOut" jdbcType="TIMESTAMP" />    
+        <result column="uid" property="uid" jdbcType="INTEGER" />            
+    </resultMap>
+    
+    <select id="queryAllRecord" resultMap="BaseResultMap">
+    	select * from records
+    </select>
+    
+    <insert id="insertRecord" parameterType="com.frame.bean.Record">
+	  insert into records(url,refer,time,timeIn,timeOut,uid) 
+	  values(#{url},#{refer},#{time},#{timeIn},#{timeOut},#{uid})
+	</insert>
+</mapper> 

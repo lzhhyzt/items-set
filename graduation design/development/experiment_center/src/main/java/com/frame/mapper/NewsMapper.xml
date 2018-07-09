@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>    
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >    
+<mapper namespace="com.frame.dao.NewsDao" >
+	<!-- 普通新闻 -->
+    <resultMap id="BaseResultMap" type="com.frame.bean.News">    
+        <result column="id" property="id" jdbcType="INTEGER" />    
+        <result column="title" property="title" jdbcType="VARCHAR" />    
+        <result column="subtitle" property="subtitle" jdbcType="VARCHAR" /> 
+        <result column="author" property="author" jdbcType="VARCHAR" />   
+        <result column="date" property="date" jdbcType="TIMESTAMP" />   
+        <result column="contents" property="contents" jdbcType="CLOB" />    
+        <result column="state" property="state" jdbcType="INTEGER" />   
+        <result column="visits" property="visits" jdbcType="INTEGER" />            
+    </resultMap>
+    
+    <!-- 图片新闻 -->
+    <resultMap id="ImgResultMap" type="com.frame.bean.ImageNews">    
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="nId" property="nId" jdbcType="INTEGER" />
+        <result column="url" property="url" jdbcType="VARCHAR" />    
+        <result column="description" property="description" jdbcType="VARCHAR" /> 
+        <result column="isShow" property="isShow" jdbcType="INTEGER" />              
+    </resultMap>
+    
+    <!-- 新闻查询 (根据ID)-->    
+    <select id="queryNewsInfoById" resultMap="BaseResultMap" parameterType="java.lang.Integer">    
+        select * from news where 
+        <if test="_parameter != null">
+        id=#{id}
+        </if>
+    </select>
+ 
+   	<!-- 新闻查询 (根据标题，模糊查询)-->    
+    <select id="queryNewsInfoByTitle"  resultMap="BaseResultMap" parameterType="java.lang.String">    
+        select * from news  
+        <if test="_parameter != null">
+        where title like "%"#{_parameter}"%" or subtitle like "%"#{_parameter}"%"
+        </if>
+    </select>
+    
+    <!-- 新闻查询(根据作者，模糊查询) -->
+    <select id="queryNewsInfoByAuthor"  resultMap="BaseResultMap" parameterType="java.lang.String">    
+        select * from news  
+        <if test="_parameter != null">
+        where author like "%"#{_parameter}"%"
+        </if>
+    </select>
+    
+	<!-- 新闻查询(所有新闻) -->
+    <select id="queryAllNewsInfo" resultMap="BaseResultMap">
+    	select * from news
+    </select>
+    
+    <!-- 查询总新闻数  -->
+    <select id="queryNewsNumber" resultType="java.lang.Integer">
+    	select count(*) from news
+    </select>
+    
+    <!-- 查询指定时间范围内的新闻数  -->
+    <select id="queryNewsNumberInTime" parameterType="com.frame.bean.Time" resultType="java.lang.Integer">
+    	SELECT COUNT(*) FROM news WHERE DATE BETWEEN #{beginTime} AND #{endTime}
+    </select>
+    
+    <!-- 分页查询新闻  -->
+    <select id="queryNewsByPaging" resultMap="BaseResultMap" parameterType="com.frame.bean.Pagination">
+    	select * from news
+    	<if test="start != null and pageSize != null">  
+        limit #{start},#{pageSize}  
+    	</if>
+    </select>
+
+    <!-- 查询指定id的上一条新闻 -->
+    <select id="queryPreviousNewsById" resultMap="BaseResultMap" parameterType="java.lang.Integer"> 
+        select * from news where id &lt; #{id} 
+        order by id desc limit 1
+    </select>
+
+    <!-- 查询指定id的下一条新闻 -->
+    <select id="queryNextNewsById" resultMap="BaseResultMap" parameterType="java.lang.Integer">    
+        select * from news where id &gt; #{id}
+        order by id asc limit 1
+    </select>
+    
+    <!-- 查询最后一条新闻的id-->
+    <select id="queryLastNews" resultMap="BaseResultMap">    
+        select * from news order by id desc limit 1 
+    </select>
+    
+    <!-- 新增新闻 -->
+    <insert id="insertNews" parameterType="com.frame.bean.News">
+	  insert into news(title,subtitle,author,date,contents,state,visits) 
+	  values(#{title,jdbcType=VARCHAR},#{subtitle,jdbcType=VARCHAR},
+	  #{author,jdbcType=VARCHAR},#{date},#{contents,jdbcType=CLOB},#{state},#{visits})
+	</insert>
+
+    <!-- 删除新闻 (根据ID)-->
+    <delete id="deleteNewsById" parameterType="java.lang.Integer">
+    	delete from news where id=#{id}  
+    </delete>
+    
+    <!-- 删除多条新闻 (根据ID数组)-->
+    <delete id="deleteNewsByArray" parameterType="List">
+    	delete from news where id in 
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">  
+        	#{item}  
+    	</foreach> 
+    </delete>
+    
+    <!-- 更新新闻信息(根据ID) -->
+    <update id="updateNewsById" parameterType="com.frame.bean.News">
+    	update news      
+        <set >      
+          <if test="title != null" >      
+            title = #{title,jdbcType=VARCHAR},      
+          </if>           
+            subtitle = #{subtitle,jdbcType=VARCHAR},     
+          <if test="author != null" >      
+            author = #{author,jdbcType=VARCHAR},      
+          </if>
+          <if test="date != null" >      
+            date = #{date,jdbcType=TIMESTAMP},      
+          </if>
+          <if test="contents != null" >      
+            contents = #{contents,jdbcType=CLOB},      
+          </if>
+          <if test="state != null" >      
+            state = #{state,jdbcType=INTEGER},      
+          </if>    
+            visits = #{visits,jdbcType=INTEGER},         
+        </set>      
+        where id = #{id,jdbcType=INTEGER} 
+    </update>
+    
+    <!-- 更新新闻的访问次数  -->
+    <update id="updateNewsVisits" parameterType="java.lang.Integer">
+    	update news set visits = visits + 1 where id = #{id,jdbcType=INTEGER} 
+    </update>
+    
+    <!-- 查询图片新闻对应的图片信息 -->
+    <select id="queryImageNews" resultMap="ImgResultMap">
+    	select * from imagenews where isShow = 1
+    </select>
+    
+    <!-- 根据id查询图片新闻对应的图片信息 -->
+    <select id="queryImageNewsById" resultMap="ImgResultMap" parameterType="java.lang.Integer">
+    	select * from imagenews where nId=#{nId,jdbcType=INTEGER}
+    </select>
+    
+    <!-- 新增图片新闻对应的图片信息 -->
+    <insert id="insertImageNews" parameterType="com.frame.bean.ImageNews">
+	  insert into imagenews(nId,url,description,isShow) 
+	  values(#{nId,jdbcType=INTEGER},#{url,jdbcType=VARCHAR},
+	  #{description,jdbcType=VARCHAR},#{isShow,jdbcType=INTEGER})
+	</insert>
+	
+	<!-- 更新新闻的访问次数  -->
+    <update id="updateImageNews" parameterType="com.frame.bean.ImageNews">
+    	update imagenews set url=#{url,jdbcType=VARCHAR}, description=#{description,jdbcType=VARCHAR},
+    	isShow=#{isShow,jdbcType=INTEGER} where nId=#{nId,jdbcType=INTEGER}
+    </update>
+    
+</mapper>    

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.frame.dao.LaboratoryDao" >
+    <resultMap id="BaseResultMap" type="com.frame.bean.Laboratory">    
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />       
+        <result column="floor" property="floor" jdbcType="INTEGER" />
+        <result column="usages" property="usages" jdbcType="INTEGER" />
+        <result column="vacant" property="vacant" jdbcType="INTEGER" /> 
+        <result column="building" property="building" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />          
+    </resultMap>
+    
+    <resultMap id="BookingMap" type="com.frame.bean.LabBooking">    
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="lId" property="lId" jdbcType="INTEGER" />
+        <result column="wId" property="wId" jdbcType="INTEGER" />
+        <result column="section1" property="section1" jdbcType="VARCHAR" />
+        <result column="section2" property="section2" jdbcType="VARCHAR" />       
+        <result column="section3" property="section3" jdbcType="VARCHAR" />       
+        <result column="section4" property="section4" jdbcType="VARCHAR" />       
+        <result column="section5" property="section5" jdbcType="VARCHAR" />       
+        <result column="section6" property="section6" jdbcType="VARCHAR" />       
+        <result column="section7" property="section7" jdbcType="VARCHAR" />          
+        <result column="status" property="status" jdbcType="INTEGER" />         
+    </resultMap>
+    
+    <resultMap id="PerBookingMap" type="com.frame.bean.PerBooking">    
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="labId" property="labId" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>       
+        <result column="section" property="section" jdbcType="VARCHAR"/>
+        <result column="week" property="week" jdbcType="INTEGER"/> 
+        <result column="labName" property="labName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <!-- 实验室查询 (所有实验室)--> 
+    <select id="queryLaboratorys" resultMap="BaseResultMap">
+    	select * from laboratory
+    </select>
+    
+    <!-- 实验室查询 (根据id)--> 
+    <select id="queryLaboratoryById" resultMap="BaseResultMap">
+    	select * from laboratory where id=#{id}
+    </select>
+    
+    <!-- 实验室查询 (根据实验室名)--> 
+    <select id="queryLaboratoryIdByName" resultType="java.lang.Integer" parameterType="String">
+    	select id from laboratory where name=#{name}
+    </select>
+    
+    <!-- 实验室模糊查询 (根据实验室名)-->    
+    <select id="queryLaboratoryByCondition"  resultMap="BaseResultMap" parameterType="Map">    
+        select * from laboratory
+        <where> 
+        <if test="floor != null">
+          floor = #{floor} 
+        </if>
+        <if test="usages != null">
+         and usages = #{usages}
+        </if>
+        <if test="vacant != null">
+         and vacant = #{vacant}
+        </if>
+        </where>
+        limit 10
+    </select>
+    
+    <!-- 查询总实验室数  -->
+    <select id="queryLaboratoryNumber" resultType="java.lang.Integer">
+    	select count(*) from laboratory
+    </select>
+    
+    <!-- 分页查询实验室  -->
+    <select id="queryListByPaging" resultMap="BaseResultMap" parameterType="com.frame.bean.Pagination">
+    	select * from laboratory
+    	<if test="start != null and pageSize != null">  
+        limit #{start},#{pageSize}  
+    	</if>
+    </select>
+
+    <!-- 查询指定id的上一条实验室 -->
+    <select id="queryPreviousLaboratoryById" resultMap="BaseResultMap" parameterType="java.lang.Integer"> 
+        select * from laboratory where id &lt; #{id} 
+        order by id desc limit 1
+    </select>
+
+    <!-- 查询指定id的下一条实验室 -->
+    <select id="queryNextLaboratoryById" resultMap="BaseResultMap" parameterType="java.lang.Integer">    
+        select * from laboratory where id &gt; #{id}
+        order by id asc limit 1
+    </select>
+    
+    <!-- 删除实验室 (根据ID)-->
+    <delete id="deleteLaboratoryById" parameterType="java.lang.Integer">
+    	delete from laboratory where id=#{id}  
+    </delete>
+    
+    <!-- 删除多条实验室 (根据ID数组)-->
+    <delete id="deleteLaboratoryByArray" parameterType="List">
+    	delete from laboratory where id in 
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">  
+        	#{item}  
+    	</foreach> 
+    </delete>
+    
+    <!-- 插入新实验室 -->
+    <insert id="insertLaboratory" parameterType="com.frame.bean.Laboratory">
+	  insert into laboratory(name,floor,usages,vacant,building,description) 
+	  values(#{name,jdbcType=VARCHAR},#{floor,jdbcType=INTEGER},#{usages,jdbcType=INTEGER},
+	  #{vacant,jdbcType=INTEGER},#{building,jdbcType=VARCHAR},#{description,jdbcType=VARCHAR})
+	</insert>
+	
+	<!-- 插入新预订总详情 -->
+    <insert id="insertLabbooking" parameterType="Map">
+	  insert into labbooking(lId,wId,status) values(#{lId}, #{wId}, #{status})
+	</insert>
+	
+	<!-- 更新实验室-->
+    <update id="updateLaboratory" parameterType="com.frame.bean.Laboratory">
+    	update laboratory set name = #{name}, floor = #{floor}, 
+    	usages = #{usages}, vacant = #{vacant}, building = #{building}, 
+    	description = #{description}
+    	where id = #{id, jdbcType=INTEGER} 
+    </update>
+	
+	<!-- 根据实验室ID查询实验室的预订情况--> 
+    <select id="queryLabBooking" resultMap="BookingMap" parameterType="java.lang.Integer">
+    	select * from labbooking where lId = #{id}
+    </select>
+    
+    <!-- 根据星期查询实验室的预订情况--> 
+    <select id="queryLabBookingByWeek" resultMap="BookingMap" parameterType="Map">
+    	select * from labbooking where lId = #{lId} and wId = #{wId}
+    </select>
+    
+    <!-- 根据用户名查询该用户的实验室预订情况 -->
+    <select id="queryLabBookingByUser" resultMap="BookingMap" parameterType="java.lang.String">
+    	select * from labbooking where wId = #{id}
+    </select>
+    
+    <!-- 更新实验室的预订情况-->
+    <update id="updateLabBookingInfo" parameterType="com.frame.bean.LabBooking">
+    	update labbooking set section1 = #{section1}, section2 = #{section2}, 
+    	section3 = #{section3}, section4 = #{section4}, section5 = #{section5}, 
+    	section6 = #{section6}, section7 = #{section7}
+    	where id = #{id, jdbcType=INTEGER} 
+    </update>
+    
+    <!-- 添加个人的预订记录 -->
+    <insert id="insertPerBooking" parameterType="com.frame.bean.PerBooking">
+	  	insert into perbooking(labId,name,section,week,labName) values(#{labId},#{name}, #{section}, #{week}, #{labName})
+	</insert>
+	
+	<!-- 查询所有有预订实验室的用户 -->
+    <select id="queryAllBookingUsers" resultMap="PerBookingMap">
+    	select distinct(name) from perbooking
+    </select>
+    
+	<!-- 查询个人的预订记录 -->
+    <select id="queryPerBooking" resultMap="PerBookingMap" parameterType="java.lang.String">
+    	select * from perbooking where name = #{name} ORDER BY WEEK ASC
+    </select>
+    
+    <!-- 删除个人的预订记录 -->
+    <delete id="deletePerBooking" parameterType="com.frame.bean.PerBooking">
+    	delete from perbooking where section=#{section} and week=#{week}
+    </delete>
+    
+    <!--从总表中删除-->
+    <update id="updateFromLabBooking" parameterType="com.frame.bean.PerBooking">
+    	update labbooking	  
+    	<trim prefix="set" suffixOverrides=",">
+    	<if test="section == 'section1'">section1=""</if>
+    	<if test="section == 'section2'">section2=""</if>
+    	<if test="section == 'section3'">section3=""</if>
+    	<if test="section == 'section4'">section4=""</if>
+    	<if test="section == 'section5'">section5=""</if>
+    	<if test="section == 'section6'">section6=""</if>
+    	<if test="section == 'section7'">section7=""</if>  
+       	</trim>  
+    	where lId=#{labId} and wId=#{week}
+    </update>
+    
+    
+</mapper> 
